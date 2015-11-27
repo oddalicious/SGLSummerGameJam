@@ -1,38 +1,45 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CatchObject : MonoBehaviour {
+public class Resource : MonoBehaviour {
 
-	Player p;
+	[SerializeField]
+	protected Player p;
+
+	public float spawnRate = 1f;
 
 	public Player.State stateEffect;
 	public Spawner spawner;
-	bool active = false;
+	public bool triggered = false;
+	[SerializeField]
+	protected int scoreGainAmount = 1;
+	[SerializeField]
+	protected int popularityGainAmount = 1;
 
 	// Use this for initialization
-	void Start() {
+	protected virtual void Start() {
 		p = FindObjectOfType<Player>();
+		triggered = false;
 	}
 
 	// Update is called once per frame
-	void Update() {
+	protected void Update() {
 		transform.position = Vector2.MoveTowards(transform.position, new Vector2(-20, transform.position.y), Time.deltaTime * 3);
 		if (transform.position.x <= -20)
 			Destroy(this.gameObject);
 
 	}
 
-	void OnTriggerEnter2D(Collider2D other) {
-		Debug.Log("Triggering");
+	protected void OnTriggerEnter2D(Collider2D other) {
 		if (other.tag.Equals("Player")) {
-			Debug.Log("Entering Collider");
-			p.SwapState(stateEffect);
+			p.SwapState(stateEffect, scoreGainAmount, popularityGainAmount, triggered);
 			p.collisionCount++;
+			triggered = true;
 		}
 
 	}
 
-	void OnTriggerExit2D(Collider2D other) {
+	protected void OnTriggerExit2D(Collider2D other) {
 		Debug.Log("Exiting");
 		if (other.tag.Equals("Player")) {
 			Debug.Log("Exiting Collider");

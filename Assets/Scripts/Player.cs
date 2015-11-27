@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
 
-	public enum State { Default, Evil, Happy, Sad }
+	public enum State { Default, Evil, Happy, Sad, Celebrate }
 	public State state;
 	int location;
 
@@ -21,12 +21,8 @@ public class Player : MonoBehaviour {
 	public float popularity;
 	public float modifier = 1f;
 
-	public float gainRateEvil = 3f;
-	public float gainRateHappy = 1f;
-	public float gainRateSad = -1f;
-	public float popularityRateEvil = -2f;
-	public float popularityRateHappy = -1f;
-	public float popularityRateSad = 1f;
+	private float popularityGain = 0.0f;
+	private float scoreGain = 0.0f;
 
 	private SpriteRenderer myRender;
 
@@ -34,6 +30,7 @@ public class Player : MonoBehaviour {
 	public Sprite evilFace;
 	public Sprite happyFace;
 	public Sprite sadFace;
+	public Sprite celebrateFace;
 
 	// Use this for initialization
 	void Start() {
@@ -47,26 +44,12 @@ public class Player : MonoBehaviour {
 		CheckLoss();
 		UpdateTexts();
 		if (collisionCount == 0)
-			SwapState(State.Default);
+			SwapState(State.Default, 0.0f, 0.5f, false);
 	}
 
 	void UpdateValues() {
-		switch (state) {
-			case State.Default:
-				break;
-			case State.Evil:
-				score += Time.deltaTime * gainRateEvil * modifier;
-				popularity += Time.deltaTime * popularityRateEvil;
-				break;
-			case State.Happy:
-				score += Time.deltaTime * gainRateHappy * modifier;
-				popularity += Time.deltaTime * popularityRateHappy;
-				break;
-			case State.Sad:
-				score += Time.deltaTime * gainRateSad;
-				popularity += Time.deltaTime * popularityRateSad;
-				break;
-		}
+		score += scoreGain * modifier;
+		popularity += popularityGain * modifier;
 	}
 
 	void UpdateTexts() {
@@ -82,11 +65,12 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	public void SwapState(State otherState) {
+	public void SwapState(State otherState, float _scoreGain, float _popularityGain, bool triggered) {
 		if (state == otherState) {
 			modifier += 0.5f;
 		}
-		state = otherState;
+		scoreGain = _scoreGain;
+		popularityGain = _popularityGain;
 
 		switch (otherState) {
 			case State.Default:
@@ -104,13 +88,26 @@ public class Player : MonoBehaviour {
 				myRender.sprite = sadFace;
 				modifier = 1f;
 				break;
+			case State.Celebrate:
+				myRender.sprite = celebrateFace;
+				if (!triggered) {
+					score += 150;
+					popularity += 20;
+				}
+				modifier = (modifier < 2) ? 2 : modifier + 2;
+				break;
 		}
 	}
 
 	void HandleInput() {
-		if (inputcooldown < 0.0f) {
+		inputcooldown -= Time.deltaTime;
 
-			if (Input.GetAxis("Vertical") < 0) {
+		if (Input.GetAxis("Vertical") < 0) {
+			if (inputcooldown < 0.0f) {
+				if (inputcooldown > 0.0f) {
+					inputcooldown -= Time.deltaTime;
+					return;
+				}
 				switch (location) {
 					case 1:
 						location = 0;
@@ -122,9 +119,13 @@ public class Player : MonoBehaviour {
 						Debug.Log("Can't Move Down");
 						break;
 				}
+				inputcooldown = maxInputCooldown;
 			}
+		}
 
-			if (Input.GetAxis("Vertical") > 0) {
+		if (Input.GetAxis("Vertical") > 0) {
+			if (inputcooldown < 0.0f) {
+
 				switch (location) {
 
 					case 0:
@@ -137,12 +138,10 @@ public class Player : MonoBehaviour {
 						Debug.Log("Can't Move Up");
 						break;
 				}
+				inputcooldown = maxInputCooldown;
 			}
-			transform.position = new Vector2(transform.position.x, location * 2.5f);
-			inputcooldown = maxInputCooldown;
 		}
-		else {
-			inputcooldown -= Time.deltaTime;
-		}
+		if (Vector2.Distance(transform.position, new Vector2(transform.position.x, location * 2.5f)) > 0.01f)
+			transform.position = Vector2.Lerp(transform.position, new Vector2(transform.position.x, location * 2.5f), Time.deltaTime * 7);
 	}
 }
