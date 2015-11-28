@@ -3,47 +3,50 @@ using System.Collections;
 
 public class Resource : MonoBehaviour {
 
-	[SerializeField]
-	protected Player p;
+	protected Player player;
+	public bool spill = false;
 
 	public float spawnRate = 1f;
 
+	public int speed = 3;
 	public Player.State stateEffect;
 	public Spawner spawner;
 	public bool triggered = false;
+	private GameController game;
 	[SerializeField]
-	protected int scoreGainAmount = 1;
+	protected float scoreGainAmount = 1.0f;
 	[SerializeField]
-	protected int popularityGainAmount = 1;
+	protected float popularityGainAmount = 1.0f;
 
 	// Use this for initialization
 	protected virtual void Start() {
-		p = FindObjectOfType<Player>();
+		player = FindObjectOfType<Player>();
 		triggered = false;
+		game = FindObjectOfType<GameController>();
 	}
 
 	// Update is called once per frame
-	protected void Update() {
-		transform.position = Vector2.MoveTowards(transform.position, new Vector2(-20, transform.position.y), Time.deltaTime * 3);
-		if (transform.position.x <= -20)
-			Destroy(this.gameObject);
+	protected virtual void Update() {
+		if (!game.gamePaused) {
+			transform.position = Vector2.MoveTowards(transform.position, new Vector2(-20, transform.position.y), Time.deltaTime * speed * game.gameSpeed);
+			if (transform.position.x <= -20)
+				Destroy(this.gameObject);
+		}
 
 	}
 
-	protected void OnTriggerEnter2D(Collider2D other) {
+	protected virtual void OnTriggerEnter2D(Collider2D other) {
 		if (other.tag.Equals("Player")) {
-			p.SwapState(stateEffect, scoreGainAmount, popularityGainAmount, triggered);
-			p.collisionCount++;
+			player.SetState(stateEffect, scoreGainAmount, popularityGainAmount, triggered);
+			player.collisionCount++;
 			triggered = true;
 		}
 
 	}
 
-	protected void OnTriggerExit2D(Collider2D other) {
-		Debug.Log("Exiting");
+	protected virtual void OnTriggerExit2D(Collider2D other) {
 		if (other.tag.Equals("Player")) {
-			Debug.Log("Exiting Collider");
-			p.collisionCount--;
+			player.collisionCount--;
 		}
 		if (other.tag.Equals("Spawner")) {
 			spawner.SpawnObject();

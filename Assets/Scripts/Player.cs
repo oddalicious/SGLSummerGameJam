@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
 
-	public enum State { Default, Evil, Happy, Sad, Celebrate }
+	public enum State { Default, Evil, Happy, Sad, Celebrate, Spill }
 	public State state;
 	int location;
+	GameController game;
 
 	private float inputcooldown = 0.25f;
 	private float maxInputCooldown = 0.25f;
@@ -31,44 +32,41 @@ public class Player : MonoBehaviour {
 	public Sprite happyFace;
 	public Sprite sadFace;
 	public Sprite celebrateFace;
+	public Sprite spillFace;
 
 	// Use this for initialization
 	void Start() {
 		myRender = GetComponent<SpriteRenderer>();
+		game = FindObjectOfType<GameController>();
+		popularity = 100;
+		score = 0;
 	}
 
 	// Update is called once per frame
 	void Update() {
-		HandleInput();
-		UpdateValues();
-		CheckLoss();
-		UpdateTexts();
-		if (collisionCount == 0)
-			SwapState(State.Default, 0.0f, 0.5f, false);
+		if (!game.gamePaused) {
+			HandleInput();
+			UpdateValues();
+			UpdateTexts();
+			if (collisionCount == 0)
+				SetState(State.Default, 0.0f, 0.0f, false);
+		}
+		Debug.Log(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, 0.0f, 0.0f)));
+		Debug.Log(Screen.width);
+
 	}
 
 	void UpdateValues() {
-		score += scoreGain * modifier;
-		popularity += popularityGain * modifier;
+		score = Mathf.Max(score + (scoreGain * modifier), 0);
+		popularity = Mathf.Clamp(popularity + popularityGain, 0, 100);
 	}
 
 	void UpdateTexts() {
-		scoreText.text = score.ToString();
-		popularityText.text = popularity.ToString();
+		scoreText.text = Mathf.RoundToInt(score).ToString();
 	}
 
-	void CheckLoss() {
-		if (Time.time > 10) {
-			if (popularity < 0.0f) {
-				Debug.Log("You Lose!");
-			}
-		}
-	}
+	public void SetState(State otherState, float _scoreGain, float _popularityGain, bool triggered) {
 
-	public void SwapState(State otherState, float _scoreGain, float _popularityGain, bool triggered) {
-		if (state == otherState) {
-			modifier += 0.5f;
-		}
 		scoreGain = _scoreGain;
 		popularityGain = _popularityGain;
 
@@ -77,10 +75,16 @@ public class Player : MonoBehaviour {
 				myRender.sprite = defaultFace;
 				break;
 			case State.Evil:
+				if (state == otherState && !triggered) {
+					modifier += 0.5f;
+				}
 				myRender.sprite = evilFace;
 				modifier += 1f;
 				break;
 			case State.Happy:
+				if (state == otherState && !triggered) {
+					modifier += 0.5f;
+				}
 				myRender.sprite = happyFace;
 				modifier += 0.5f;
 				break;
@@ -89,12 +93,23 @@ public class Player : MonoBehaviour {
 				modifier = 1f;
 				break;
 			case State.Celebrate:
+				if (state == otherState && !triggered) {
+					modifier += 0.5f;
+				}
 				myRender.sprite = celebrateFace;
 				if (!triggered) {
 					score += 150;
-					popularity += 20;
+					popularity += 5;
 				}
-				modifier = (modifier < 2) ? 2 : modifier + 2;
+				modifier = 1;
+				scoreGain = 0;
+				popularityGain = 0;
+				break;
+			case State.Spill:
+				myRender.sprite = spillFace;
+				modifier = 0;
+				popularityGain = 0;
+				scoreGain = 0;
 				break;
 		}
 	}
@@ -116,7 +131,6 @@ public class Player : MonoBehaviour {
 						location = -1;
 						break;
 					default:
-						Debug.Log("Can't Move Down");
 						break;
 				}
 				inputcooldown = maxInputCooldown;
@@ -135,13 +149,12 @@ public class Player : MonoBehaviour {
 						location = 0;
 						break;
 					default:
-						Debug.Log("Can't Move Up");
 						break;
 				}
 				inputcooldown = maxInputCooldown;
 			}
 		}
-		if (Vector2.Distance(transform.position, new Vector2(transform.position.x, location * 2.5f)) > 0.01f)
-			transform.position = Vector2.Lerp(transform.position, new Vector2(transform.position.x, location * 2.5f), Time.deltaTime * 7);
+		if (Vector2.Distance(transform.position, new Vector2(transform.position.x, (location * 2.5f) + 1)) > 0.01f)
+			transform.position = Vector2.Lerp(transform.position, new Vector2(transform.position.x, (location * 2.5f) + 1), Time.deltaTime * 7);
 	}
 }

@@ -6,15 +6,21 @@ public class Spawner : MonoBehaviour {
 
 	[SerializeField]
 	List<GameObject> spawnableObjects;
+	[SerializeField]
+	private GameController game;
 
 	// Use this for initialization
 	void Start() {
-		SpawnObject();
 		spawnableObjects = spawnableObjects.OrderBy(n => n.GetComponent<Resource>().spawnRate).ToList();
 	}
 
-	void OnTriggerExit2D(Collider2D other) {
+	void OnEnable() {
 		SpawnObject();
+	}
+
+	void OnTriggerExit2D(Collider2D other) {
+		if (!game.gamePaused)
+			SpawnObject();
 	}
 
 	public void SpawnObject() {
