@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class GameController : MonoBehaviour {
 
 	public Spawner[] spawners;
 	public bool gamePaused = false;
 	public float gameSpeed = 1f;
+	public float gameSpeedIncrease = 0.001f;
 
 	private Player player;
 	private SpillMotion spill;
@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour {
 		if (player.popularity < 30 && !spill.enabled) {
 			StartSpill();
 		}
-		gameSpeed += Time.deltaTime * 0.1f;
+		gameSpeed += Time.deltaTime * gameSpeedIncrease;
 	}
 
 	public void Continue() {

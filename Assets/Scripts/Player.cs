@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
@@ -22,6 +21,8 @@ public class Player : MonoBehaviour {
 	private GameController game;
 	private float inputcooldown = 0.25f;
 	private float maxInputCooldown = 0.25f;
+	[SerializeField]
+	Slider slider;
 	[SerializeField]
 	private Text scoreText;
 	private float popularityGain = 0.0f;
@@ -55,6 +56,7 @@ public class Player : MonoBehaviour {
 
 	void UpdateTexts() {
 		scoreText.text = Mathf.RoundToInt(score).ToString();
+		slider.value = popularity;
 	}
 
 	public void SetState(State otherState, float _scoreGain, float _popularityGain, bool triggered) {
