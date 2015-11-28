@@ -46,7 +46,6 @@ public class Player : MonoBehaviour {
 			if (collisionCount == 0)
 				SetState(State.Default, 0.0f, 0.0f, false);
 		}
-
 	}
 
 	void UpdateValues() {
@@ -110,6 +109,8 @@ public class Player : MonoBehaviour {
 
 	void HandleInput() {
 		inputcooldown -= Time.deltaTime;
+		if (Input.GetAxis("Cancel") > 0 || Input.GetAxis("Cancel") < 0)
+			Application.LoadLevel("Menu");
 		//Handle Touch
 		if (Input.touchCount > 0) {
 			Touch();
