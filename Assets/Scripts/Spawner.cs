@@ -5,7 +5,7 @@ using System.Linq;
 public class Spawner : MonoBehaviour {
 
 	[SerializeField]
-	List<GameObject> spawnableObjects;
+	private List<GameObject> spawnableObjects;
 	[SerializeField]
 	private GameController game;
 

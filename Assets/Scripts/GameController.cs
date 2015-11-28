@@ -3,22 +3,21 @@ using System.Collections;
 
 public class GameController : MonoBehaviour {
 
-	private Player player;
-	private SpillMotion spill;
 	public Spawner[] spawners;
 	public bool gamePaused = false;
 	public float gameSpeed = 1f;
+
+	private Player player;
+	private SpillMotion spill;
 
 	void Start() {
 		spill = GetComponent<SpillMotion>();
 		player = FindObjectOfType<Player>();
 	}
 
-	// Update is called once per frame
 	void Update() {
 		if (player.popularity < 30 && !spill.enabled) {
-			//Initiate Spill Motion
-			Disable();
+			StartSpill();
 		}
 		gameSpeed += Time.deltaTime * 0.1f;
 	}
@@ -27,7 +26,7 @@ public class GameController : MonoBehaviour {
 		ToggleSpawners(true);
 	}
 
-	public void Disable() {
+	public void StartSpill() {
 		ToggleSpawners(false);
 		spill.enabled = true;
 		gamePaused = true;

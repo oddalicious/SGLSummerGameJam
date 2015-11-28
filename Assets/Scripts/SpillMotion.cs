@@ -4,18 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 public class SpillMotion : MonoBehaviour {
 
-	[SerializeField]
-	Spawner[] spillSpawners;
-	GameController game;
+	public List<Resource> activeResources;
 
 	[SerializeField]
+	private Spawner[] spillSpawners;
+	[SerializeField]
 	private SpriteRenderer turnbull;
+
+	private GameController game;
 	private Player player;
-	public List<Resource> activeResources;
-	bool entered = false;
-	bool exited = false;
-	float opacity = 1f;
-	Color color;
+	private bool entered = false;
+	private bool exited = false;
+	private float opacity = 1f;
+	private Color color;
 
 	// Use this for initialization
 	void Start() {
@@ -23,7 +24,41 @@ public class SpillMotion : MonoBehaviour {
 		player = FindObjectOfType<Player>();
 	}
 
-	bool Initialize() {
+	void OnEnable() {
+		if (!player)
+			player = FindObjectOfType<Player>();
+		if (!game)
+			game = FindObjectOfType<GameController>();
+		GetActiveResources(false);
+
+	}
+
+	void OnDisable() {
+		entered = false;
+		exited = false;
+		opacity = 1f;
+		game.gameSpeed = 1f;
+	}
+
+	void Update() {
+		if (StartSpill()) {
+
+			if (player.popularity == 0.0f) {
+				Application.LoadLevel("Loss");
+			}
+			else if (player.popularity > 50) {
+				if (activeResources.Count == 0)
+					GetActiveResources(true);
+				if (EndSpill()) {
+					game.Continue();
+					enabled = false;
+				}
+			}
+			player.popularity += Time.deltaTime;
+		}
+	}
+
+	bool StartSpill() {
 		if (!entered) {
 			FadeTurnbull(true);
 			ModifyOpacity();
@@ -41,13 +76,7 @@ public class SpillMotion : MonoBehaviour {
 		return true;
 	}
 
-	void FadeTurnbull(bool input) {
-		color = turnbull.color;
-		color.a = (input) ? Mathf.Clamp01(color.a + Time.deltaTime) : Mathf.Clamp01(color.a - Time.deltaTime);
-		turnbull.color = color;
-	}
-
-	bool ReturnToNormal() {
+	bool EndSpill() {
 		if (!exited) {
 			FadeTurnbull(false);
 			game.gamePaused = true;
@@ -56,7 +85,6 @@ public class SpillMotion : MonoBehaviour {
 				exited = true;
 				ClearResources();
 				opacity = 1;
-				game.gameSpeed = 1f;
 			}
 			return false;
 		}
@@ -67,13 +95,10 @@ public class SpillMotion : MonoBehaviour {
 		return true;
 	}
 
-	void ModifyOpacity() {
-		opacity = Mathf.Clamp01(opacity - Time.deltaTime);
-		foreach (Resource r in activeResources) {
-			color = r.GetComponent<SpriteRenderer>().color;
-			color.a = opacity;
-			r.GetComponent<SpriteRenderer>().color = color;
-		}
+	void FadeTurnbull(bool input) {
+		color = turnbull.color;
+		color.a = (input) ? Mathf.Clamp01(color.a + Time.deltaTime) : Mathf.Clamp01(color.a - Time.deltaTime);
+		turnbull.color = color;
 	}
 
 	public void GetActiveResources(bool input) {
@@ -89,40 +114,18 @@ public class SpillMotion : MonoBehaviour {
 		}
 	}
 
-	void OnEnable() {
-		entered = false;
-		exited = false;
-		if (!player)
-			player = FindObjectOfType<Player>();
-		if (!game)
-			game = FindObjectOfType<GameController>();
-		GetActiveResources(false);
-		opacity = 1f;
-	}
-
-	// Update is called once per frame
-	void Update() {
-		if (Initialize()) {
-
-			if (player.popularity == 0.0f) {
-				Application.LoadLevel("Loss");
-			}
-			else if (player.popularity > 50) {
-				if (activeResources.Count == 0)
-					GetActiveResources(true);
-				if (ReturnToNormal()) {
-					game.Continue();
-					enabled = false;
-				}
-			}
-			player.popularity += Time.deltaTime;
-		}
-	}
-
 	private void ToggleSpawners(bool input) {
 		foreach (Spawner spawner in spillSpawners) {
 			spawner.gameObject.SetActive(input);
 		}
 	}
 
+	private void ModifyOpacity() {
+		opacity = Mathf.Clamp01(opacity - Time.deltaTime);
+		foreach (Resource r in activeResources) {
+			color = r.GetComponent<SpriteRenderer>().color;
+			color.a = opacity;
+			r.GetComponent<SpriteRenderer>().color = color;
+		}
+	}
 }

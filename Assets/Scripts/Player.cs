@@ -5,34 +5,28 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour {
 
 	public enum State { Default, Evil, Happy, Sad, Celebrate, Spill }
+
 	public State state;
-	int location;
-	GameController game;
-
-	private float inputcooldown = 0.25f;
-	private float maxInputCooldown = 0.25f;
-	public int collisionCount = 0;
-
-	[SerializeField]
-	Text scoreText;
-	[SerializeField]
-	Text popularityText;
-
-	public float score;
-	public float popularity;
-	public float modifier = 1f;
-
-	private float popularityGain = 0.0f;
-	private float scoreGain = 0.0f;
-
-	private SpriteRenderer myRender;
-
 	public Sprite defaultFace;
 	public Sprite evilFace;
 	public Sprite happyFace;
 	public Sprite sadFace;
 	public Sprite celebrateFace;
 	public Sprite spillFace;
+	public int collisionCount = 0;
+	public float score;
+	public float popularity;
+	public float modifier = 1f;
+
+	private int location;
+	private GameController game;
+	private float inputcooldown = 0.25f;
+	private float maxInputCooldown = 0.25f;
+	[SerializeField]
+	private Text scoreText;
+	private float popularityGain = 0.0f;
+	private float scoreGain = 0.0f;
+	private SpriteRenderer myRender;
 
 	// Use this for initialization
 	void Start() {
@@ -51,8 +45,6 @@ public class Player : MonoBehaviour {
 			if (collisionCount == 0)
 				SetState(State.Default, 0.0f, 0.0f, false);
 		}
-		Debug.Log(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, 0.0f, 0.0f)));
-		Debug.Log(Screen.width);
 
 	}
 
@@ -116,45 +108,62 @@ public class Player : MonoBehaviour {
 
 	void HandleInput() {
 		inputcooldown -= Time.deltaTime;
-
+		//Handle Touch
+		if (Input.touchCount > 0) {
+			Touch();
+		}
+		//Handle Up button
 		if (Input.GetAxis("Vertical") < 0) {
-			if (inputcooldown < 0.0f) {
-				if (inputcooldown > 0.0f) {
-					inputcooldown -= Time.deltaTime;
-					return;
-				}
-				switch (location) {
-					case 1:
-						location = 0;
-						break;
-					case 0:
-						location = -1;
-						break;
-					default:
-						break;
-				}
-				inputcooldown = maxInputCooldown;
-			}
+			Up();
 		}
-
+		//Handle Down Button
 		if (Input.GetAxis("Vertical") > 0) {
-			if (inputcooldown < 0.0f) {
-
-				switch (location) {
-
-					case 0:
-						location = 1;
-						break;
-					case -1:
-						location = 0;
-						break;
-					default:
-						break;
-				}
-				inputcooldown = maxInputCooldown;
-			}
+			Down();
 		}
+		//Move to new position if there is one
 		if (Vector2.Distance(transform.position, new Vector2(transform.position.x, (location * 2.5f) + 1)) > 0.01f)
 			transform.position = Vector2.Lerp(transform.position, new Vector2(transform.position.x, (location * 2.5f) + 1), Time.deltaTime * 7);
+	}
+
+	void Touch() {
+		Touch t = Input.GetTouch(0);
+		if (t.position.y > Screen.height / 2) {
+			Up();
+		}
+		else if (t.position.y <= Screen.height / 2) {
+			Down();
+		}
+	}
+
+	void Up() {
+		if (inputcooldown < 0.0f) {
+			switch (location) {
+				case 1:
+					location = 0;
+					break;
+				case 0:
+					location = -1;
+					break;
+				default:
+					break;
+			}
+			inputcooldown = maxInputCooldown;
+		}
+	}
+	void Down() {
+		if (inputcooldown < 0.0f) {
+			switch (location) {
+
+				case 0:
+					location = 1;
+					break;
+				case -1:
+					location = 0;
+					break;
+				default:
+					break;
+			}
+			inputcooldown = maxInputCooldown;
+		}
 	}
 }

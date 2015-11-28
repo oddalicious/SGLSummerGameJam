@@ -7,8 +7,8 @@ public class Slider : MonoBehaviour {
 	[SerializeField]
 	private Image panel;
 	private Player player;
-	Vector2 panelPosition;
-	float panelWidth, popularity, end, start, distance;
+	private Vector2 panelPosition;
+	private float panelWidth, popularity, end, start, distance;
 
 	void Start() {
 		panelPosition = panel.transform.position;
