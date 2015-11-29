@@ -133,9 +133,8 @@ public class Player : MonoBehaviour {
 		if (t.position.y > Screen.height / 2) {
 			Down();
 		}
-		else if (t.position.y <= Screen.height / 2) {
+		else
 			Up();
-		}
 	}
 
 	void Up() {
