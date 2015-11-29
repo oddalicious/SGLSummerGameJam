@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour {
 	public float gameSpeedIncrease = 0.001f;
 	public int currentCoalCount;
 	public int totalCoalCount = 30;
+	public int hitCount = 0;
 
 	float endCount = 5f;
 
@@ -17,6 +18,8 @@ public class GameController : MonoBehaviour {
 	private UnityEngine.UI.Image ww3Image;
 	[SerializeField]
 	private UnityEngine.UI.Image instructionImage;
+	[SerializeField]
+	private UnityEngine.UI.Image greensImage;
 	private AudioSource aSource;
 	private bool coalTriggered;
 	private Player player;
@@ -42,6 +45,9 @@ public class GameController : MonoBehaviour {
 		if (currentCoalCount <= 0) {
 			WW3();
 		}
+		if (hitCount > 100 && player.popularity > 70) {
+			Greens();
+		}
 	}
 
 	public void StartGame() {
@@ -56,6 +62,14 @@ public class GameController : MonoBehaviour {
 			ww3Image.gameObject.SetActive(true);
 			aSource.clip = siren;
 			aSource.Play();
+		}
+	}
+
+	void Greens() {
+		endCount -= 0.1f;
+		Time.timeScale = 0.0f;
+		if (!greensImage.gameObject.activeSelf) {
+			greensImage.gameObject.SetActive(true);
 		}
 	}
 

@@ -10,6 +10,8 @@ public class Resource : MonoBehaviour {
 	public bool triggered = false;
 
 	[SerializeField]
+	protected ParticleSystem pSystem;
+	[SerializeField]
 	protected float scoreGainAmount = 1.0f;
 	[SerializeField]
 	protected float popularityGainAmount = 1.0f;
@@ -37,13 +39,17 @@ public class Resource : MonoBehaviour {
 			player.SetState(stateEffect, scoreGainAmount, popularityGainAmount, triggered);
 			player.collisionCount++;
 			triggered = true;
+			game.hitCount++;
+			if (pSystem)
+				pSystem.gameObject.SetActive(true);
 		}
-
 	}
 
 	protected virtual void OnTriggerExit2D(Collider2D other) {
 		if (other.tag.Equals("Player")) {
 			player.collisionCount--;
+			if (pSystem)
+				pSystem.gameObject.SetActive(false);
 		}
 		if (other.tag.Equals("Spawner")) {
 			spawner.SpawnObject();
