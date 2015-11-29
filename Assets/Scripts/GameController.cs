@@ -8,9 +8,15 @@ public class GameController : MonoBehaviour {
 	public float gameSpeedIncrease = 0.001f;
 	public int totalCoalCount = 30;
 
+	float endCount = 5f;
+
+	[SerializeField]
+	AudioClip siren;
 	[SerializeField]
 	private UnityEngine.UI.Image ww3Image;
-
+	[SerializeField]
+	private UnityEngine.UI.Image instructionImage;
+	private AudioSource aSource;
 	private bool coalTriggered;
 	private Player player;
 	private SpillMotion spill;
@@ -18,6 +24,12 @@ public class GameController : MonoBehaviour {
 	void Start() {
 		spill = GetComponent<SpillMotion>();
 		player = FindObjectOfType<Player>();
+		aSource = FindObjectOfType<AudioSource>();
+	}
+
+	void OnEnable() {
+		instructionImage.gameObject.SetActive(true);
+		Time.timeScale = 0;
 	}
 
 	void Update() {
@@ -30,15 +42,18 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
+	public void StartGame() {
+		instructionImage.gameObject.SetActive(false);
+		Time.timeScale = 1;
+	}
+
 	void WW3() {
+		endCount -= 0.1f;
 		Time.timeScale = 0.0f;
 		if (!ww3Image.gameObject.activeSelf) {
 			ww3Image.gameObject.SetActive(true);
-		}
-		else {
-			if (Input.anyKeyDown || Input.touchCount > 0) {
-				GetComponent<LevelController>().LoadWW3End();
-			}
+			aSource.clip = siren;
+			aSource.Play();
 		}
 	}
 

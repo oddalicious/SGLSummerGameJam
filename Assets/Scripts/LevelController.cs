@@ -14,4 +14,8 @@ public class LevelController : MonoBehaviour {
 		Time.timeScale = 1;
 		Application.LoadLevel("WorldWarIII");
 	}
+
+	public void LoadCredits() {
+		Application.LoadLevel("Credits");
+	}
 }
