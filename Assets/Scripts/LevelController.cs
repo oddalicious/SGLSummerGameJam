@@ -9,4 +9,9 @@ public class LevelController : MonoBehaviour {
 	public void LoadGame() {
 		Application.LoadLevel("Main");
 	}
+
+	public void LoadWW3End() {
+		Time.timeScale = 1;
+		Application.LoadLevel("WorldWarIII");
+	}
 }

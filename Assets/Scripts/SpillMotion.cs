@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 public class SpillMotion : MonoBehaviour {
 
 	public List<Resource> activeResources;
@@ -9,7 +10,11 @@ public class SpillMotion : MonoBehaviour {
 	private Spawner[] spillSpawners;
 	[SerializeField]
 	private SpriteRenderer turnbull;
+	[SerializeField]
+	private Image spillMotionImage;
 
+	private bool firstWarning;
+	private bool warningActivated;
 	private GameController game;
 	private Player player;
 	private bool entered = false;
@@ -19,6 +24,8 @@ public class SpillMotion : MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
+		firstWarning = true;
+		warningActivated = false;
 		game = GetComponent<GameController>();
 		player = FindObjectOfType<Player>();
 	}
@@ -37,30 +44,55 @@ public class SpillMotion : MonoBehaviour {
 		exited = false;
 		opacity = 1f;
 		game.gameSpeed = 1f;
+		warningActivated = false;
 	}
 
 	void Update() {
-		if (StartSpill()) {
+		if (warningActivated) {
+			if (StartSpill()) {
 
-			if (player.popularity == 0.0f) {
-				Application.LoadLevel("Loss");
+				if (player.popularity == 0.0f) {
+					Application.LoadLevel("Loss");
+				}
+				else if (player.popularity > 50) {
+					if (activeResources.Count == 0)
+						GetActiveResources(true);
+					if (EndSpill()) {
+						game.Continue();
+						enabled = false;
+					}
+				}
+				player.popularity += Time.deltaTime;
 			}
-			else if (player.popularity > 50) {
-				if (activeResources.Count == 0)
-					GetActiveResources(true);
-				if (EndSpill()) {
-					game.Continue();
-					enabled = false;
+		}
+		else
+			DisplayWarning();
+	}
+
+	void DisplayWarning() {
+		if (!firstWarning) {
+			warningActivated = true;
+			return;
+		}
+		if (!spillMotionImage.gameObject.activeSelf) {
+			spillMotionImage.gameObject.SetActive(true);
+		}
+		else {
+			IncreaseWarningOpacity();
+			if (opacity == 1f) {
+				if (Input.anyKeyDown || Input.touchCount > 0) {
+					ClearWarning();
+					spillMotionImage.gameObject.SetActive(false);
+					warningActivated = true;
 				}
 			}
-			player.popularity += Time.deltaTime;
 		}
 	}
 
 	bool StartSpill() {
 		if (!entered) {
 			FadeTurnbull(true);
-			ModifyOpacity();
+			ReduceResourceOpacity();
 			if (opacity == 0.0f) {
 				entered = true;
 				ClearResources();
@@ -79,7 +111,7 @@ public class SpillMotion : MonoBehaviour {
 		if (!exited) {
 			FadeTurnbull(false);
 			game.gamePaused = true;
-			ModifyOpacity();
+			ReduceResourceOpacity();
 			if (opacity == 0.0f) {
 				exited = true;
 				ClearResources();
@@ -119,12 +151,24 @@ public class SpillMotion : MonoBehaviour {
 		}
 	}
 
-	private void ModifyOpacity() {
+	private void ReduceResourceOpacity() {
 		opacity = Mathf.Clamp01(opacity - Time.deltaTime);
 		foreach (Resource r in activeResources) {
 			color = r.GetComponent<SpriteRenderer>().color;
 			color.a = opacity;
 			r.GetComponent<SpriteRenderer>().color = color;
 		}
+	}
+
+	private void IncreaseWarningOpacity() {
+		opacity = Mathf.Clamp01(opacity + (Time.deltaTime * 2));
+		color = spillMotionImage.color;
+		color.a = opacity;
+		spillMotionImage.color = color;
+	}
+	private void ClearWarning() {
+		color = spillMotionImage.color;
+		color.a = 0;
+		spillMotionImage.color = color;
 	}
 }

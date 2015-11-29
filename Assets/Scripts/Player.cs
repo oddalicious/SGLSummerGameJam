@@ -131,10 +131,10 @@ public class Player : MonoBehaviour {
 	void Touch() {
 		Touch t = Input.GetTouch(0);
 		if (t.position.y > Screen.height / 2) {
-			Up();
+			Down();
 		}
 		else if (t.position.y <= Screen.height / 2) {
-			Down();
+			Up();
 		}
 	}
 
