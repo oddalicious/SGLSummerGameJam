@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
@@ -23,6 +22,8 @@ public class Player : MonoBehaviour {
 	private float inputcooldown = 0.25f;
 	private float maxInputCooldown = 0.25f;
 	[SerializeField]
+	Slider slider;
+	[SerializeField]
 	private Text scoreText;
 	private float popularityGain = 0.0f;
 	private float scoreGain = 0.0f;
@@ -45,7 +46,6 @@ public class Player : MonoBehaviour {
 			if (collisionCount == 0)
 				SetState(State.Default, 0.0f, 0.0f, false);
 		}
-
 	}
 
 	void UpdateValues() {
@@ -55,6 +55,7 @@ public class Player : MonoBehaviour {
 
 	void UpdateTexts() {
 		scoreText.text = Mathf.RoundToInt(score).ToString();
+		slider.value = popularity;
 	}
 
 	public void SetState(State otherState, float _scoreGain, float _popularityGain, bool triggered) {
@@ -108,6 +109,8 @@ public class Player : MonoBehaviour {
 
 	void HandleInput() {
 		inputcooldown -= Time.deltaTime;
+		if (Input.GetAxis("Cancel") > 0 || Input.GetAxis("Cancel") < 0)
+			Application.LoadLevel("Menu");
 		//Handle Touch
 		if (Input.touchCount > 0) {
 			Touch();
@@ -128,10 +131,10 @@ public class Player : MonoBehaviour {
 	void Touch() {
 		Touch t = Input.GetTouch(0);
 		if (t.position.y > Screen.height / 2) {
-			Up();
+			Down();
 		}
 		else if (t.position.y <= Screen.height / 2) {
-			Down();
+			Up();
 		}
 	}
 
