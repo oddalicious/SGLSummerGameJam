@@ -9,7 +9,7 @@ public class Coal : Resource {
 		base.OnTriggerEnter2D(other);
 		if (other.tag.Equals("Player") && !coalTriggered) {
 			coalTriggered = true;
-			game.totalCoalCount--;
+			game.currentCoalCount--;
 		}
 	}
 }

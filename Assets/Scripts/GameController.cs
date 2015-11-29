@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour {
 	public bool gamePaused = false;
 	public float gameSpeed = 1f;
 	public float gameSpeedIncrease = 0.001f;
+	public int currentCoalCount;
 	public int totalCoalCount = 30;
 
 	float endCount = 5f;
@@ -22,6 +23,7 @@ public class GameController : MonoBehaviour {
 	private SpillMotion spill;
 
 	void Start() {
+		currentCoalCount = totalCoalCount;
 		spill = GetComponent<SpillMotion>();
 		player = FindObjectOfType<Player>();
 		aSource = FindObjectOfType<AudioSource>();
@@ -37,7 +39,7 @@ public class GameController : MonoBehaviour {
 			StartSpill();
 		}
 		gameSpeed += Time.deltaTime * gameSpeedIncrease;
-		if (totalCoalCount <= 0) {
+		if (currentCoalCount <= 0) {
 			WW3();
 		}
 	}
