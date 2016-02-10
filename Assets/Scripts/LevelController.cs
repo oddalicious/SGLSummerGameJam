@@ -12,7 +12,7 @@ public class LevelController : MonoBehaviour {
 
 	public void LoadWW3End() {
 		Time.timeScale = 1;
-		Application.LoadLevel("WorldWarIII");
+		Application.LoadLevel("BoatPeople");
 	}
 
 	public void LoadCredits() {
