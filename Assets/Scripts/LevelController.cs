@@ -1,21 +1,22 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour {
 
-	public void LoadMenu() {
-		Application.LoadLevel("Menu");
-	}
+    public void LoadMenu() {
+        SceneManager.LoadScene("Menu");
+    }
 
-	public void LoadGame() {
-		Application.LoadLevel("Main");
-	}
+    public void LoadGame() {
+        SceneManager.LoadScene("Main");
+    }
 
-	public void LoadWW3End() {
-		Time.timeScale = 1;
-		Application.LoadLevel("BoatPeople");
-	}
+    public void LoadWW3End() {
+        Time.timeScale = 1;
+        SceneManager.LoadScene("BoatPeople");
+    }
 
-	public void LoadCredits() {
-		Application.LoadLevel("Credits");
-	}
+    public void LoadCredits() {
+        SceneManager.LoadScene("Credits");
+    }
 }
